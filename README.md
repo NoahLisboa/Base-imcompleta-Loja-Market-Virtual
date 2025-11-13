@@ -1,195 +1,73 @@
-# 🎨 NS Studio Criações Digitais
+# NS Studio Criações Digitais
 
-[![Deploy Status](https://img.shields.io/badge/Deploy-Success-brightgreen)](https://github.com/nsstudio/criacoes-digitais)
-[![Node.js Version](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+Plataforma completa para venda de produtos digitais com sistema de afiliados, gamificação e automação. Este repositório inclui servidor Express com EJS, páginas estilizadas em Bootstrap, e infraestrutura Docker com Nginx como reverse proxy.
 
-## 📋 Sobre o Projeto
+## Recursos Principais
+- Autenticação de usuários e cadastro
+- Dashboard do usuário com métricas
+- Loja com filtros, ordenação e página de produto
+- Painel Administrativo (usuários, produtos, configurações, logs, backup)
+- Sistema de Tickets (cliente cria, admin responde)
+- Wishlist (lista de desejos) por usuário
+- Modo Manutenção com bloqueio para visitantes
 
-Sistema completo de vendas de produtos digitais com funcionalidades avançadas de gerenciamento, afiliados, cupons e integração com WhatsApp.
+## Requisitos
+- Node.js 18+
+- Docker 28+ (opcional, recomendado)
 
-### ✨ Funcionalidades Principais
+## Ambiente (variáveis)
+- `PORT` (padrão: 3000)
+- `NODE_ENV` (padrão: production)
+- `SESSION_SECRET`
+- `SITE_NAME`, `OWNER_NAME`, `WHATSAPP_NUMBER` (opcionais)
 
-- 🔐 **Sistema de Permissões**: Owner, Admin e Membro
-- 🛒 **E-commerce Completo**: Carrinho, checkout e entrega
-- 💰 **Sistema de Afiliados**: Comissões e dashboard
-- 🎫 **Cupons de Desconto**: Múltiplos tipos e validações
-- 📱 **Integração WhatsApp**: Mensagens personalizadas
-- 📊 **Analytics Avançado**: Relatórios e estatísticas
-- 🎮 **Gamificação**: Pontos e conquistas
-- 🤖 **IA Integrada**: Automações inteligentes
-- 📁 **Entrega Segura**: Download protegido de arquivos
-- 🎨 **Interface Moderna**: Design responsivo e animações
+## Executando com Docker
+1. Build e subir serviços:
+```
+docker compose up -d
+```
+2. Acessar:
+- App: `http://localhost/` (via Nginx)
+- App direto: `http://localhost:3000/`
+3. Logs:
+```
+docker compose logs --no-color --tail 200
+```
 
-## 🚀 Deploy Rápido
-
-### 1. GitHub + Vercel (Recomendado)
-
-\`\`\`bash
-# 1. Fork este repositório
-# 2. Conecte ao Vercel
-# 3. Configure as variáveis de ambiente
-# 4. Deploy automático!
-\`\`\`
-
-### 2. Heroku
-
-\`\`\`bash
-# Clone o repositório
-git clone https://github.com/SEU_USUARIO/ns-studio-criacoes-digitais.git
-cd ns-studio-criacoes-digitais
-
-# Crie app no Heroku
-heroku create ns-studio-app
-
-# Configure variáveis
-heroku config:set NODE_ENV=production
-heroku config:set SESSION_SECRET=sua_chave_secreta_forte
-heroku config:set ADMIN_PASSWORD=sua_senha_admin
-heroku config:set OWNER_PASSWORD=sua_senha_owner
-heroku config:set WHATSAPP_NUMBER=5511999999999
-
-# Deploy
-git push heroku main
-\`\`\`
-
-### 3. Railway
-
-\`\`\`bash
-# 1. Conecte seu GitHub ao Railway
-# 2. Selecione este repositório
-# 3. Configure as variáveis de ambiente
-# 4. Deploy automático!
-\`\`\`
-
-## ⚙️ Configuração
-
-### Variáveis de Ambiente Obrigatórias
-
-\`\`\`env
-NODE_ENV=production
-PORT=3000
-SESSION_SECRET=sua_chave_secreta_super_forte_aqui
-ADMIN_PASSWORD=sua_senha_admin_aqui
-OWNER_PASSWORD=sua_senha_owner_aqui
-WHATSAPP_NUMBER=5511999999999
-SITE_NAME=NS Studio Criações Digitais
-OWNER_NAME=Seu Nome
-\`\`\`
-
-### Instalação Local
-
-\`\`\`bash
-# Clone o repositório
-git clone https://github.com/SEU_USUARIO/ns-studio-criacoes-digitais.git
-cd ns-studio-criacoes-digitais
-
-# Instale dependências
+## Desenvolvimento local (sem Docker)
+```
 npm install
-
-# Configure .env
-cp .env.example .env
-# Edite o arquivo .env com suas configurações
-
-# Inicie o servidor
 npm run dev
-\`\`\`
+```
+Acesse `http://localhost:3000/`.
 
-## 📱 Uso
+## Estrutura
+- `server.mjs`: servidor Express e middleware de manutenção
+- `views/`: páginas EJS (login, loja, produto, dashboard, admin, etc.)
+- `routes/`: rotas modulares (admin, wishlist, tickets, etc.)
+- `secret/`: arquivos JSON persistentes (users, produtos, sales, tickets, logs, ...)
+- `public/`: estáticos
 
-### Acesso Inicial
+## Rotas Importantes
+- Público: `/`, `/login`, `/signup`, `/loja`, `/loja/produto/:id`
+- Usuário: `/dashboard`, `/dashboard/produtos`
+- Admin: `/admin` e APIs sob `/admin/*`
+- Wishlist API: `/api/wishlist/*`
+- Tickets: `/tickets/*`
 
-1. **Owner**: `/admin` com a senha configurada em `OWNER_PASSWORD`
-2. **Admin**: Criado pelo Owner no painel
-3. **Usuários**: Registro público em `/signup`
+## Modo Manutenção
+- Ative em Configurações (Admin) ou ajustando `secret/settings.json` (`maintenanceMode: true`).
+- Visitantes são direcionados para `views/maintenance.ejs`; admins continuam com acesso.
 
-### Funcionalidades por Perfil
+## Troubleshooting
+- Se ver “Internal Server Error” em `/loja/produto/:id`, garanta que o produto existe em `secret/produtos.json` e que a página `views/produto.ejs` está atualizada.
+- Admin “Erro ao carregar/deletar produtos”: atualizado para retornar `{products}` e implementado `DELETE /admin/products/:productId`.
+- Wishlist: montada em `/api/wishlist`; exige login.
+- Tickets: montados em `/tickets`; admins podem alterar status e responder.
 
-#### 👑 Owner
-- Acesso total ao sistema
-- Gerenciamento de admins
-- Configurações globais
-- Backup e manutenção
-- Analytics completo
+## Segurança
+- Não use `MemoryStore` em produção. Configure um store de sessão (Redis, etc.).
+- Não faça commit de segredos.
 
-#### 🛡️ Admin
-- Gerenciamento de produtos
-- Usuários e pedidos
-- Cupons e afiliados
-- Relatórios básicos
-
-#### 👤 Membro
-- Compra de produtos
-- Download de arquivos
-- Perfil pessoal
-- Histórico de compras
-
-## 🛠️ Tecnologias
-
-- **Backend**: Node.js + Express
-- **Frontend**: EJS + Bootstrap 5
-- **Banco**: JSON (File-based)
-- **Upload**: Multer
-- **Segurança**: Bcrypt + Sessions
-- **Integração**: WhatsApp API
-- **Deploy**: Vercel/Heroku/Railway
-
-## 📊 Estrutura do Projeto
-
-\`\`\`
-ns-studio-criacoes-digitais/
-├── 📁 config/          # Configurações
-├── 📁 routes/          # Rotas da aplicação
-├── 📁 views/           # Templates EJS
-├── 📁 public/          # Arquivos estáticos
-├── 📁 secret/          # Dados JSON
-├── 📁 uploads/         # Arquivos de produtos
-├── 📁 scripts/         # Scripts de manutenção
-├── 📄 server.mjs       # Servidor principal
-├── 📄 package.json     # Dependências
-└── 📄 README.md        # Este arquivo
-└── # A PARTE A BAIXO FOI CORTADA PRA N SER LONGO
-\`\`\`
-
-## 🔒 Segurança
-
-- ✅ Senhas criptografadas (bcrypt)
-- ✅ Sessões seguras
-- ✅ Validação de entrada
-- ✅ Rate limiting
-- ✅ Headers de segurança
-- ✅ Upload seguro de arquivos
-- ✅ Controle de acesso granular
-
-## 📈 Performance
-
-- ⚡ Compressão Gzip
-- ⚡ Cache de arquivos estáticos
-- ⚡ Otimização de imagens
-- ⚡ Lazy loading
-- ⚡ Minificação CSS/JS
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
-## 📞 Suporte
-
-- 📧 Email: suporte@nsstudio.com
-- 💬 WhatsApp: +55 22 97400 8281
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 🎉 Agradecimentos
-
-Obrigado por usar o NS Studio Criações Digitais! 
-
----
-
-**Desenvolvido com ❤️ por NS Studio**
+## Licença
+MIT
